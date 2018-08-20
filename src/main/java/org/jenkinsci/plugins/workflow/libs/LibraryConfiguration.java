@@ -33,10 +33,14 @@ import hudson.model.Descriptor;
 import hudson.model.DescriptorVisibilityFilter;
 import hudson.model.Item;
 import hudson.util.FormValidation;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
+
+import org.apache.commons.io.FileUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.AncestorInPath;
@@ -47,10 +51,12 @@ import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
+
 /**
  * User configuration for one library.
  */
 public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfiguration> {
+    public static final String GLOBAL_LIBRARIES_DIR = "global-libraries-cache";
 
     private final String name;
     private final LibraryRetriever retriever;
@@ -58,6 +64,7 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
     private boolean implicit;
     private boolean allowVersionOverride = true;
     private boolean includeInChangesets = true;
+    private boolean cacheVersions = false;
 
     @DataBoundConstructor public LibraryConfiguration(String name, LibraryRetriever retriever) {
         this.name = Util.fixEmptyAndTrim(name);
@@ -121,6 +128,14 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
         this.includeInChangesets = includeInChangesets;
     }
 
+    public boolean getCacheVersions() {
+        return cacheVersions;
+    }
+
+    @DataBoundSetter public void setCacheVersions(boolean cacheVersions) {
+        this.cacheVersions = cacheVersions;
+    }
+
     @Nonnull boolean defaultedChangelogs(@CheckForNull Boolean changelog) throws AbortException {
       if (changelog == null) {
         return includeInChangesets;
@@ -141,6 +156,12 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
         } else {
             throw new AbortException("Version override not permitted for library " + name);
         }
+    }
+
+    public static File getGlobalLibrariesCacheDir() {
+        Jenkins jenkins = Jenkins.getInstance();
+        final File jenkinsHome = jenkins.getRootDir();
+        return new File(jenkinsHome, LibraryConfiguration.GLOBAL_LIBRARIES_DIR);
     }
 
     @Extension public static class DescriptorImpl extends Descriptor<LibraryConfiguration> {
@@ -180,6 +201,20 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
                     }
                 }
                 return FormValidation.ok("Cannot validate default version until after saving and reconfiguring.");
+            }
+        }
+
+        public FormValidation doClearCache(@QueryParameter String name) {
+            File cacheDir = new File(getGlobalLibrariesCacheDir(), name);
+            if(cacheDir.exists()) {
+                try {
+                    FileUtils.deleteDirectory(cacheDir);
+                    return FormValidation.ok("The cache dir was deleted successfully.");
+                } catch(IOException ex) {
+                    return FormValidation.error("The cache dir was not deleted successfully.\n" + ex.toString());
+                }
+            } else {
+                return FormValidation.error("The cache dir did not exist. Could not clear.");
             }
         }
 
