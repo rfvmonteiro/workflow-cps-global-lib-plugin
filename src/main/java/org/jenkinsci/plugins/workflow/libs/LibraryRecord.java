@@ -48,7 +48,7 @@ public final class LibraryRecord {
         this.version = version;
         this.trusted = trusted;
         this.changelog = changelog;
-        this.cachingConfiguration = cachingConfiguration;
+        this.cachingConfiguration = cachingConfiguration != null ? cachingConfiguration : new LibraryCachingConfiguration();
     }
 
     @Exported

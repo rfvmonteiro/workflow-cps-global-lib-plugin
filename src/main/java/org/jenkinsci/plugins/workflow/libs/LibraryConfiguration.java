@@ -70,7 +70,7 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
     private boolean allowVersionOverride = true;
     private boolean includeInChangesets = true;
     
-    private Boolean cacheEnabled;
+    private boolean cacheEnabled = false;
     private int cacheRefreshTimeMinutes;
     private List<String> cacheExcludedVersions;
 
