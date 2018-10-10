@@ -48,7 +48,7 @@ public final class LibraryRecord {
         this.version = version;
         this.trusted = trusted;
         this.changelog = changelog;
-        this.cachingConfiguration = cachingConfiguration != null ? cachingConfiguration : new LibraryCachingConfiguration();
+        this.cachingConfiguration = cachingConfiguration;
     }
 
     @Exported
@@ -77,7 +77,8 @@ public final class LibraryRecord {
     }
 
     @Override public String toString() {
-        return "LibraryRecord{name=" + name + ", version=" + version + ", variables=" + variables + ", trusted=" + trusted + ", changelog=" + changelog + ", cachingConfiguration=" + cachingConfiguration.toString() + '}';
+        String cachingConfigurationStr = cachingConfiguration != null ? cachingConfiguration.toString() : "null";
+        return "LibraryRecord{name=" + name + ", version=" + version + ", variables=" + variables + ", trusted=" + trusted + ", changelog=" + changelog + ", cachingConfiguration=" + cachingConfigurationStr + '}';
     }
 
 }
