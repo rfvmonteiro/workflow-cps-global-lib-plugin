@@ -126,11 +126,11 @@ public class LibraryConfiguration extends AbstractDescribableImpl<LibraryConfigu
     }
 
     @Nonnull boolean defaultedChangelogs(@CheckForNull Boolean changelog) throws AbortException {
-        if (changelog == null) {
-            return includeInChangesets;
-        } else {
-            return changelog;
-        }
+      if (changelog == null) {
+        return includeInChangesets;
+      } else {
+        return changelog;
+      }
     }
 
     @Nonnull String defaultedVersion(@CheckForNull String version) throws AbortException {
